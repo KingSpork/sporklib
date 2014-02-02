@@ -6,6 +6,8 @@ import argparse
 import hashlib
 import shutil
 
+
+
 '''
 safe_move allows you to move a file without fear of overwriting the dest. dir.
 '''
@@ -19,7 +21,44 @@ safe_mkdir will only make a directory if it does not exist
 def safe_mkdir(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
+		
+def zip_dir(dir_path, dest_path=""):
 
+		
+def __zip_dir(path, zipfile_obj_w, searchstr="", verbose=False):
+    '''
+	Path is path to the file you want to zip
+    zip is a ZipFile object opened in write mode
+	
+    if you specify a searchstr equivalent to a directory name, zipadir will find that string in the full filepath
+    and truncate the zipped path to that point.  For example if your full path is "/Users/pbellamy/Documents/file.txt"
+    and you specify the searchstr "Documents" the zip file will contain "/Documents/file.txt" instead of burying it
+    under the empty folders "/Users/pbellamy".
+    '''
+	for root, dirs, files in os.walk(path):
+        for file in files:
+
+            if search_str != "":
+                index = root.index(search_str)
+                zroot = "/" + root[index:]
+            else:
+                zroot = root
+
+            fpath = root + "/" + file
+            zpath = zroot + "/" + file
+            '''
+			print("ROOT: ");print(root) #DEBUG
+            print("DIRS: ");print(dirs) #DEBUG
+            print("FILES: ");print(files) #DEBUG
+            print("FPATH:");print(fpath) #DEBUG
+            print("ZROOT:");print(zroot) #DEBUG
+            print("ZPATH:");print(zpath) #DEBUG
+			'''
+            zipfile_obj_w.write(fpath, zpath)		
+		
+		
+		
+		
 '''
 hash_file creates an md5 hash of a file's contents.
 '''
@@ -37,7 +76,6 @@ def hash_file(path, validate_file=True):
             del hasher
 
         return file_hash
-
     return
 
         
@@ -65,7 +103,6 @@ def hash_dir(path, return_dupes=False):
 
     if return_dupes:
         return (hash_dict, dupes)
-
     return hash_dict
 
 
