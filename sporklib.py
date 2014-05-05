@@ -21,21 +21,23 @@ safe_mkdir will only make a directory if it does not exist
 def safe_mkdir(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
-		
-def zip_dir(dir_path, dest_path=""):
 
-		
+'''
+
+def zip_dir(dir_path, dest_path=""):
+    pass
+
 def __zip_dir(path, zipfile_obj_w, searchstr="", verbose=False):
-    '''
-	Path is path to the file you want to zip
+
+    Path is path to the file you want to zip
     zip is a ZipFile object opened in write mode
-	
+
     if you specify a searchstr equivalent to a directory name, zipadir will find that string in the full filepath
     and truncate the zipped path to that point.  For example if your full path is "/Users/pbellamy/Documents/file.txt"
     and you specify the searchstr "Documents" the zip file will contain "/Documents/file.txt" instead of burying it
     under the empty folders "/Users/pbellamy".
-    '''
-	for root, dirs, files in os.walk(path):
+
+    for root, dirs, files in os.walk(path):
         for file in files:
 
             if search_str != "":
@@ -46,19 +48,17 @@ def __zip_dir(path, zipfile_obj_w, searchstr="", verbose=False):
 
             fpath = root + "/" + file
             zpath = zroot + "/" + file
-            '''
-			print("ROOT: ");print(root) #DEBUG
+
+            print("ROOT: ");print(root) #DEBUG
             print("DIRS: ");print(dirs) #DEBUG
             print("FILES: ");print(files) #DEBUG
             print("FPATH:");print(fpath) #DEBUG
             print("ZROOT:");print(zroot) #DEBUG
             print("ZPATH:");print(zpath) #DEBUG
-			'''
-            zipfile_obj_w.write(fpath, zpath)		
-		
-		
-		
-		
+
+            zipfile_obj_w.write(fpath, zpath)
+'''
+
 '''
 hash_file creates an md5 hash of a file's contents.
 '''
@@ -78,7 +78,7 @@ def hash_file(path, validate_file=True):
         return file_hash
     return
 
-        
+
 '''
 hash_dir takes a directory and returns a dict where the key is a hash of the
 file's contents and the value is the path to the file.
@@ -88,7 +88,7 @@ def hash_dir(path, return_dupes=False):
     hash_dict = {}
     dupes = {}
     files = list_files(path, True)
-    
+
     for file in files:
         h = hash_file(file)
 
@@ -115,7 +115,7 @@ def get_path_target(path, return_root=False):
     if return_root:
         return tuple(path[:i], path[i+1:])
     return path[i+1:]
-    
+
 
 '''
 diff_dir will return the paths of all files in path_1 that are not in path_2.
@@ -148,14 +148,16 @@ def list_files(path, files_only=False, full_paths=True):
     all_list = []
     files_list = []
 
-    for file in files:
-
-        if full_paths:
-            file = path + "/" + file
-            all_list.append(file)
+    for file in files:        
+        fn = file
         
-        if os.path.isfile(file):
+        if full_paths:
+            file = path + "/" + fn
+
+        if os.path.isfile(path + "/" + fn):
             files_list.append(file)
+        
+        all_list.append(file)
 
     if files_only:
         return files_list
