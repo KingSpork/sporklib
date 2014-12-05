@@ -43,5 +43,5 @@ if name == "UPDATE":
             
     name = biggest_key
     
-    
+print("\n") #easier to read output
 sporklib_utils.files.rename_shows(dir, name, dry_run)

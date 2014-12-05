@@ -9,6 +9,9 @@ class files(object):
     @staticmethod
     def rename_shows(dir, show_name, dry_run=False):
 
+        if dry_run:
+            print("DRY RUN -- FILES NOT RENAMED")
+    
         video_formats = [".mpg", ".mp4", ".avi", ".mkv", ".mpeg"]
     
         dir = sporklib.normalize_path(dir)
@@ -17,73 +20,73 @@ class files(object):
         re_season = "[Ss]\d{1,2}"
         re_episode = "[Ee]\d{1,2}"
         files = []
-
+        vid_file_paths = []
+        
         file_paths = sporklib.list_files(dir, True)
-        #print("File paths are:");print(file_paths)
         
         for path in file_paths:
-            i = path.rfind("/")
-            f = path[i+1:]
-            files.append(f)
+        
+            ext_i = path.rfind(".")
+            extension = path[ext_i:]
+            
+            if extension in video_formats:
+                vid_file_paths.append(path)
+                i = path.rfind("/")
+                f = path[i+1:]
+                files.append(f)
 
+        file_paths = vid_file_paths
+                
         if len(file_paths) != len(files):
             raise IndexError("List of file paths did not have corresponding indices in list of file names.")
 
-        #print("Renaming files in the following list:");print(files)
-
         i = 0
         for filename in files:    
-            ext_i = filename.rfind(".")
-            extension = filename[ext_i:]
+            new_name = ""
             
-            if extension in video_formats:
+            s_matcher = re.compile(re_season)
+            e_matcher = re.compile(re_episode)
+
+            looper = [["s", s_matcher], ["e", e_matcher]]
+
+            for loop in looper:
+
+                matcher = loop[1]
+
+                mo = matcher.search(filename)
+
+                if mo != None: #regex failed              
+                    positions = mo.span()
+
+                    match = filename[positions[0]:positions[1]]
+
+                    match = re.sub("[^0 -9]", "", match)
+                    match = int(match)
+
+                    if match > 9:
+                        match = str(match)
+                    else:
+                        match = "0" + str(match)
+
+                    if loop[0] == "s":
+                        season = match
+                    elif loop[0] == "e":
+                        episode = match
+                    else:
+                        raise IndexError("ERROR! DID NOT RECOGNIZE LOOP DIRECTIVE: " + loop[0])
+
+            new_name = show_name + " - S" + season + "E" + episode + extension
+
+            path = file_paths[i]
+            new_path = dir + "/" + new_name
             
-                new_name = ""
-                
-                s_matcher = re.compile(re_season)
-                e_matcher = re.compile(re_episode)
-
-                looper = [["s", s_matcher], ["e", e_matcher]]
-
-                for loop in looper:
-
-                    matcher = loop[1]
-
-                    mo = matcher.search(filename)
-
-                    if mo != None: #regex failed              
-                        positions = mo.span()
-
-                        match = filename[positions[0]:positions[1]]
-
-                        match = re.sub("[^0 -9]", "", match)
-                        match = int(match)
-
-                        if match > 9:
-                            match = str(match)
-                        else:
-                            match = "0" + str(match)
-
-                        if loop[0] == "s":
-                            season = match
-                        elif loop[0] == "e":
-                            episode = match
-                        else:
-                            print("ERROR! DID NOT RECOGNIZE LOOP DIRECTIVE: " + loop[0])
-                            #raise exception here
-
-
-
-                new_name = show_name + " - S" + season + "E" + episode + extension
-               
-                print(new_name)
-                
-                if dry_run == False:
-                    path = file_paths[i]
-                    print(path + " ----> " + dir + "/" + new_name)
-                    os.rename(path, dir + "/" + new_name)
+            if new_path != path:
+                print(filename + " --> " + new_name)
             
-                i += 1
+                if not dry_run:
+                    os.rename(path, new_path)
+
+            i += 1
 
 
 	@staticmethod
