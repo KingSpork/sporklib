@@ -11,9 +11,9 @@ class files(object):
 
         if dry_run:
             print("DRY RUN -- FILES NOT RENAMED")
-    
+
         video_formats = [".mpg", ".mp4", ".avi", ".mkv", ".mpeg"]
-    
+
         dir = sporklib.normalize_path(dir)
         season = "XX"
         episode = "XX"
@@ -21,14 +21,14 @@ class files(object):
         re_episode = "[Ee]\d{1,2}"
         files = []
         vid_file_paths = []
-        
+
         file_paths = sporklib.list_files(dir, True)
-        
+
         for path in file_paths:
-        
+
             ext_i = path.rfind(".")
             extension = path[ext_i:]
-            
+
             if extension in video_formats:
                 vid_file_paths.append(path)
                 i = path.rfind("/")
@@ -36,14 +36,14 @@ class files(object):
                 files.append(f)
 
         file_paths = vid_file_paths
-                
+
         if len(file_paths) != len(files):
             raise IndexError("List of file paths did not have corresponding indices in list of file names.")
 
         i = 0
-        for filename in files:    
+        for filename in files:
             new_name = ""
-            
+
             s_matcher = re.compile(re_season)
             e_matcher = re.compile(re_episode)
 
@@ -55,7 +55,7 @@ class files(object):
 
                 mo = matcher.search(filename)
 
-                if mo != None: #regex failed              
+                if mo != None: #regex failed
                     positions = mo.span()
 
                     match = filename[positions[0]:positions[1]]
@@ -79,10 +79,10 @@ class files(object):
 
             path = file_paths[i]
             new_path = dir + "/" + new_name
-            
+
             if new_path != path:
                 print(filename + " --> " + new_name)
-            
+
                 if not dry_run:
                     os.rename(path, new_path)
 
@@ -93,7 +93,7 @@ class files(object):
 	def extract_unique_files(dir_1, dir_2, dir_dest, move=False):
 
 		if (os.path.isfile(dir_1)) or (os.path.isfile(dir_2)) or (os.path.isfile(dir_dest)):
-			raise IOError("extract_unique_files takes only directories as arguments, not files.")
+			raise IOError("ERROR! extract_unique_files takes only directories as arguments, not files.")
 
 		dir_dest = sporklib.normalize_path(dir_dest)
 		sporklib.safe_mkdir(dir_dest)
@@ -110,7 +110,7 @@ class files(object):
 	@staticmethod
 	def extract_duplicate_files(dir_source, dir_dest, move=False):
 		if (os.path.isfile(dir_source)) or (os.path.isfile(dir_dest)):
-			raise IOError("extract_unique_files takes only directories as arguments, not files.")
+			raise IOError("ERROR! extract_unique_files takes only directories as arguments, not files.")
 
 		dir_dest = sporklib.normalize_path(dir_dest)
 		sporklib.safe_mkdir(dir_dest)
