@@ -5,6 +5,8 @@ import sporklib
 import shutil
 import re
 
+
+
 class files(object):
     @staticmethod
     def rename_shows(dir, show_name, dry_run=False):
@@ -26,14 +28,10 @@ class files(object):
 
         for path in file_paths:
 
-            ext_i = path.rfind(".")
-            extension = path[ext_i:]
-
-            if extension in video_formats:
-                vid_file_paths.append(path)
-                i = path.rfind("/")
-                f = path[i+1:]
-                files.append(f)
+            vid_file_paths.append(path)
+            i = path.rfind("/")
+            f = path[i+1:]
+            files.append(f)
 
         file_paths = vid_file_paths
 
@@ -42,49 +40,55 @@ class files(object):
 
         i = 0
         for filename in files:
-            new_name = ""
+            
+            ext_i = filename.rfind(".")
+            extension = filename[ext_i:]
 
-            s_matcher = re.compile(re_season)
-            e_matcher = re.compile(re_episode)
+            if extension in video_formats:
+        
+                new_name = ""
 
-            looper = [["s", s_matcher], ["e", e_matcher]]
+                s_matcher = re.compile(re_season)
+                e_matcher = re.compile(re_episode)
 
-            for loop in looper:
+                looper = [["s", s_matcher], ["e", e_matcher]]
 
-                matcher = loop[1]
+                for loop in looper:
 
-                mo = matcher.search(filename)
+                    matcher = loop[1]
 
-                if mo != None: #regex failed
-                    positions = mo.span()
+                    mo = matcher.search(filename)
 
-                    match = filename[positions[0]:positions[1]]
+                    if mo != None: #regex failed
+                        positions = mo.span()
 
-                    match = re.sub("[^0 -9]", "", match)
-                    match = int(match)
+                        match = filename[positions[0]:positions[1]]
 
-                    if match > 9:
-                        match = str(match)
-                    else:
-                        match = "0" + str(match)
+                        match = re.sub("[^0 -9]", "", match)
+                        match = int(match)
 
-                    if loop[0] == "s":
-                        season = match
-                    elif loop[0] == "e":
-                        episode = match
-                    else:
-                        raise IndexError("ERROR! DID NOT RECOGNIZE LOOP DIRECTIVE: " + loop[0])
+                        if match > 9:
+                            match = str(match)
+                        else:
+                            match = "0" + str(match)
 
-            new_name = show_name + " - S" + season + "E" + episode + extension
+                        if loop[0] == "s":
+                            season = match
+                        elif loop[0] == "e":
+                            episode = match
+                        else:
+                            raise IndexError("ERROR! DID NOT RECOGNIZE LOOP DIRECTIVE: " + loop[0])
 
-            path = file_paths[i]
-            new_path = dir + "/" + new_name
+                new_name = show_name + " - S" + season + "E" + episode + extension
 
-            if new_path != path:
-                print(filename + " --> " + new_name)
+                path = file_paths[i]
+                new_path = dir + "/" + new_name
 
-                if not dry_run:
-                    os.rename(path, new_path)
+                if new_path != path:
+                    print(filename + " --> " + new_name)
+
+                    if not dry_run:
+                        os.rename(path, new_path)
 
             i += 1
 
