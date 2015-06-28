@@ -2,10 +2,10 @@ import os
 
 class pornTagger(object):
     
-    #porn tag structure:
+    #prn tag structure:
     #{"name":"", "tags":{}, "whores":{}, "notes":"", "favorite":False}
     
-    __record_template = {"name":"", "tags":{}, "whores":{}, "notes":"", "favorite":False}
+    __record_template = {"name":"", "tags":[], "whores":[], "notes":"", "favorite":False}
     __avail_tags = ["anal",
                     "ass-to-mouth",
                     "cum drink",
@@ -63,10 +63,11 @@ class pornTagger(object):
         
     def filter_by_tags(self, tag_list):
         tag_set = set(tag_list)
-        records = self.get_records
+        records = self.get_records()
         matches = {}
-        for key in records:
-            if len(tag_set - records[key]
+        for record in records:
+            if len(tag_set - set(records[record][tags])) == 0:
+                
             
     
     @staticmethod
