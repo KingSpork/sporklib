@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import ntpath
 import os
 import sporklib
 import shutil
@@ -93,42 +93,73 @@ class files(object):
             i += 1
 
 
-	@staticmethod
-	def extract_unique_files(dir_1, dir_2, dir_dest, move=False):
+    @staticmethod
+    def extract_unique_files(dir, dir_dest, move=False, dry_run=False):
+    
+        if (os.path.isfile(dir)) or (os.path.isfile(dir_dest)):
+            raise IOError("ERROR! extract_unique_files takes only directories as arguments, not files.")
 
-		if (os.path.isfile(dir_1)) or (os.path.isfile(dir_2)) or (os.path.isfile(dir_dest)):
-			raise IOError("ERROR! extract_unique_files takes only directories as arguments, not files.")
+        dir_dest = sporklib.normalize_path(dir_dest)
+        sporklib.safe_mkdir(dir_dest)
 
-		dir_dest = sporklib.normalize_path(dir_dest)
-		sporklib.safe_mkdir(dir_dest)
+        unique_hashes = sporklib.hash_dir(dir)
 
-		diff_hashes = sporklib.diff_dir(dir_1, dir_2)
+        if dry_run:
+            for hash,path in unique_hashes.items():
+                print(ntpath.basename(path))
+        else:
+            if move:
+                for hash,path in unique_hashes.items():
+                    sporklib.safe_move(path, dir_dest)
+            else:
+                for hash,path in unique_hashes.items():
+                    shutil.copy2(path, dir_dest)
+            
+            
+    @staticmethod
+    def extract_unique_files_from_two_dirs(dir_1, dir_2, dir_dest, move=False, dry_run=False):
 
-		if move:
-			for hash,path in diff_hashes.items():
-				sporklib.safe_move(path, dir_dest)
-		else:
-			for hash,path in diff_hashes.items():
-				shutil.copy2(path, dir_dest)
+        if (os.path.isfile(dir_1)) or (os.path.isfile(dir_2)) or (os.path.isfile(dir_dest)):
+            raise IOError("ERROR! extract_unique_files takes only directories as arguments, not files.")
 
-	@staticmethod
-	def extract_duplicate_files(dir_source, dir_dest, move=False):
-		if (os.path.isfile(dir_source)) or (os.path.isfile(dir_dest)):
-			raise IOError("ERROR! extract_unique_files takes only directories as arguments, not files.")
+        dir_dest = sporklib.normalize_path(dir_dest)
+        sporklib.safe_mkdir(dir_dest)
 
-		dir_dest = sporklib.normalize_path(dir_dest)
-		sporklib.safe_mkdir(dir_dest)
+        diff_hashes = sporklib.diff_dir(dir_1, dir_2)
 
-		dupes = sporklib.hash_dir(dir_source, True)[1]
+        if dry_run:
+            for hash,path in diff_hashes.items():
+                print(ntpath.basename(path))
+        else:
+            if move:
+                for hash,path in diff_hashes.items():
+                    sporklib.safe_move(path, dir_dest)
+            else:
+                for hash,path in diff_hashes.items():
+                    shutil.copy2(path, dir_dest)
 
-		if move:
-			for hash,paths in dupes.items():
-				for p in paths[1:]:
-					sporklib.safe_move(p, dir_dest)
-		else:
-			for hash,paths in dupes.items():
-				for p in paths:
-					shutil.copy2(p, dir_dest)
+    @staticmethod
+    def extract_duplicate_files(dir_source, dir_dest, move=False, dry_run=False):
+        if (os.path.isfile(dir_source)) or (os.path.isfile(dir_dest)):
+            raise IOError("ERROR! extract_unique_files takes only directories as arguments, not files.")
 
-#	@staticmethod
-#	def find_matching_file(match_str, tgt_dir,
+        dir_dest = sporklib.normalize_path(dir_dest)
+        sporklib.safe_mkdir(dir_dest)
+
+        dupes = sporklib.hash_dir(dir_source, True)[1]
+
+        if dry_run:
+            for hash,path in dupes.items():
+                print(ntpath.basename(path))
+        else:
+            if move:
+                for hash,paths in dupes.items():
+                    for p in paths[1:]:
+                        sporklib.safe_move(p, dir_dest)
+            else:
+                for hash,paths in dupes.items():
+                    for p in paths:
+                        shutil.copy2(p, dir_dest)
+
+#    @staticmethod
+#    def find_matching_file(match_str, tgt_dir,

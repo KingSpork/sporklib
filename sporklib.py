@@ -164,3 +164,22 @@ def list_files(path, files_only=False, full_paths=True):
         
     return {"dirs":list(set(files_list) ^ set(all_list)),
         "files":files_list}
+
+        
+def print_list_of_items(list, prefix="", term_width=80):   
+    spacer_char = "."
+    bracket_l = "["
+    bracket_r = "]"
+    
+    
+    
+    i = 1
+    for item in list:
+        spacers = ""
+        i_str = str(i)
+        used_chars = len(prefix + bracket_l + i_str + bracket_r)
+        n = term_width - (used_chars + len(item)) 
+        for s in xrange(0,n):
+            spacers += spacer_char
+        print(prefix + item + spacers + bracket_l + i_str + bracket_r)
+        i += 1
