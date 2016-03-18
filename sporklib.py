@@ -127,6 +127,19 @@ def diff_dir(path_1, path_2):
     uniques = tuple(filter(lambda x: x not in hashes_2, hashes_1))
     return dict((key, hashes_1[key]) for key in uniques)
 
+'''
+Usage: json.loads(object_hook=ascii_encode_dict
+'''
+def byteify(input):
+    if isinstance(input, dict):
+        return {byteify(key): byteify(value)
+                for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        return [byteify(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('ascii')
+    else:
+        return input
 
 '''
 normalize_path replaces backslashes with forward slashes. Much more civilized.
