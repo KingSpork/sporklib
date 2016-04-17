@@ -9,12 +9,14 @@ arg_parser = argparse.ArgumentParser(description="Renames a directory of TV show
 arg_parser.add_argument("-d", "--dir", required=True, help="The directory containing the shows you'd like to rename")
 arg_parser.add_argument("-n", "--name", required=True, help="Name of the show as you'd like it to appear. Pass UPDATE (all caps) to use name of show that is majority in directory.")
 arg_parser.add_argument("-r", "--dryrun", required=False, help="Do a \"dry run\", printing new names but taking no action", action="store_true")
+arg_parser.add_argument("-p", "--pattern", required=False, help="Enter a regex which will be used to extract the episode name from each file")
 
 args = arg_parser.parse_args()
 
 dir = sporklib.normalize_path(args.dir)
 name = args.name
 dry_run = args.dryrun
+pattern = args.pattern
 
 if dir == "":
     print("ERROR: Directory not specified")

@@ -127,6 +127,19 @@ def diff_dir(path_1, path_2):
     uniques = tuple(filter(lambda x: x not in hashes_2, hashes_1))
     return dict((key, hashes_1[key]) for key in uniques)
 
+'''
+Usage: json.loads(object_hook=ascii_encode_dict
+'''
+def byteify(input):
+    if isinstance(input, dict):
+        return {byteify(key): byteify(value)
+                for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        return [byteify(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('ascii')
+    else:
+        return input
 
 '''
 normalize_path replaces backslashes with forward slashes. Much more civilized.
@@ -164,3 +177,22 @@ def list_files(path, files_only=False, full_paths=True):
         
     return {"dirs":list(set(files_list) ^ set(all_list)),
         "files":files_list}
+
+        
+def print_list_of_items(list, prefix="", term_width=80):   
+    spacer_char = "."
+    bracket_l = "["
+    bracket_r = "]"
+    
+    
+    
+    i = 1
+    for item in list:
+        spacers = ""
+        i_str = str(i)
+        used_chars = len(prefix + bracket_l + i_str + bracket_r)
+        n = term_width - (used_chars + len(item)) 
+        for s in xrange(0,n):
+            spacers += spacer_char
+        print(prefix + item + spacers + bracket_l + i_str + bracket_r)
+        i += 1
