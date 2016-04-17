@@ -6,7 +6,7 @@ from random import randrange
 
 g_engine = None
 g_selected_record = None
-g_search_results = []
+g_search_results = {}
 g_yes_choices = ["yes", "y"]
 YN = " Y/N\n"
 
@@ -18,7 +18,6 @@ def get_tags():
     return g_selected_record["tags"]
     
 def get_actors():
-    print g_selected_record
     return g_selected_record["actors"]
     
 def verify_args(args_list=None, arg_type=None):
@@ -30,10 +29,8 @@ def verify_args(args_list=None, arg_type=None):
             try:
                 arg_type(a)
             except ValueError:
-                print("Arg %s not of type %s." % (a, arg_type.__name__))
+                print("Arg '%s' not of type %s." % (a, arg_type.__name__))
                 raise DoNotProceedException
-
-    
     
 
 def verify_record_selected():
@@ -48,7 +45,13 @@ def get_tag_from_int(n):
     return g_engine.get_avail_tags()[n-1]
 
 def get_actor_from_int(n):
-    return g_engine.get_avail_actors()[n-1]
+    n = n-1
+    actors = g_engine.get_avail_actors()
+    if n >= 0 and n < len(actors):
+        return actors[n]
+    else:
+        print("User supplied invalid integer.")
+        raise DoNotProceedException
     
 def create_new_actor(actor):
     g_engine.add_actor_to_avail(actor)
@@ -60,7 +63,6 @@ def create_new_tag(tag):
     
 def add_tags(tags):
     for t in tags:
-        print tags #DEBUG
         tag_to_add = get_tag_from_int(int(t))
         g_engine.add_tag_to_record(g_selected_record, tag_to_add)
         print("Successfully added tag: %s to record: %s" % (tag_to_add, g_selected_record["name"]))
@@ -91,41 +93,43 @@ def select_record_by_name(name):
         g_selected_record = g_engine.get_records()[name]
     except KeyError:
         print("Cannot select record: record does not exist")
-        
+'''
+def select_search_result(result):
+    global g_search_results
+    global g_selected_record
+    g_searc
+'''        
 def select_random_record():
     global g_selected_record
-    records = g_engine.get_records()
-    rando = randrange(0,len(records))
-    key = records.keys()[rando]
-    g_selected_record = records[key]
+    global g_search_results
+    rando = randrange(0,len(g_search_results))
+    key = g_search_results.keys()[rando]
+    g_selected_record = g_search_results[key]
     
 def search_records_by_tags(tags):
     global g_search_results
-    search_results = g_engine.get_tag_matches(tags)
-    i = 0
-    for r in search_results.keys():
-        g_search_results[i] = r
+    n_tags = []
+    for t in tags:
+        n_tags.append(get_tag_from_int(int(t)))
+    search_results = g_engine.get_tag_matches(n_tags)
 
 
 def filter_records_by_tags(tags):
     global g_search_results
-    search_results = g_engine.filter_by_tags(tags)
-    i = 0
-    for r in search_results.keys():
-        g_search_results[i] = r
+    n_tags = []
+    for t in tags:
+        n_tags.append(get_tag_from_int(int(t)))
+    g_search_results = g_engine.filter_by_tags(n_tags)
 
 
 def print_search_results():
     print("*** SEARCH RESULTS ***")
-    sporklib.print_list_of_items(g_search_results)
+    sporklib.print_list_of_items(g_search_results.keys())
     
 
 def get_all_records():
     global g_search_results
-    search_results = []
-    for k in g_engine.get_records().keys():
-        search_results.append(k)
-    g_search_results = search_results
+    g_search_results = g_engine.get_records()
     
 def print_selected_record():
     print("SELECTED RECORD IS: " + g_selected_record["name"])
@@ -191,7 +195,6 @@ def run_command(command_type, *args):
             for r in get_actors():
                 s += r + ", "
             s = s[:-2]
-            print s
             print("Actors are: %s" % s)
         except DoNotProceedException:
             print(fail_msg)
@@ -268,7 +271,7 @@ def run_command(command_type, *args):
         print_search_results()
         
     elif command_type in command_types["save"]:
-        inp = raw_input("Are you sure you want to save settings?" + YN)
+        inp = raw_input("Are you sure you want to save all data?" + YN)
         if inp in g_yes_choices:
             print("Saving...")
             g_engine.save_changes()
@@ -318,6 +321,7 @@ def run_command(command_type, *args):
         print_search_results()
         
     elif command_type in command_types["exit"]:
+        run_command("save")
         inp = ""
         while inp == "":
             inp = raw_input("Are you sure you want to exit?" + YN)
@@ -371,6 +375,10 @@ def intro():
         
     if inp in g_yes_choices:
         run_command("scan")
+        
+    print("Loading records...")
+    get_all_records()
+    print("Records loaded.")
         
 intro()
 while True:

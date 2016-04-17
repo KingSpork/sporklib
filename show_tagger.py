@@ -121,7 +121,7 @@ class ShowTagger(FileTagger):
     def add_actor_to_record(self, record, actor):
         self._add_item_to_record(record, "actors", actor)
 
-    def remove_tag_from_record(self, record, actor):
+    def remove_actor_from_record(self, record, actor):
         self._remove_item_from_record(record, "actors", actor)
 
     # you need to rework this method, maybe override an abstractr method from base class

@@ -30,7 +30,6 @@ class FileTagger(object):
         self.load_records()
         self._vet_recorded_items_to_avail()
         self._load_avail_items()
-        print("INSTANCE") #DEBUG
     
     '''
     init and admin
@@ -231,10 +230,10 @@ class FileTagger(object):
     def _remove_item_from_record(self, record, item_key, item):
         records = self.get_records()
         if self._get_is_item_avail(item_key, item):
-            if record in records:
-                old_set = set(records[record][item_ley])
-                new_set = old_set - set(item)
-                records[record][item_key] = list(new_set)
+            if record["name"] in records:
+                old_set = set(records[record["name"]][item_key])
+                new_set = old_set - set([item])
+                records[record["name"]][item_key] = list(new_set)
     
     '''
     Working with records
